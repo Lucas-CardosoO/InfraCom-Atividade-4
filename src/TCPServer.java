@@ -1,21 +1,26 @@
         import java.net.ServerSocket;
         import java.net.Socket;
         import java.io.DataInputStream;
-
+        import java.util.Vector;
+        import java.lang.Thread;
+        
 public class TCPServer {
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
         int port = 2002;
         int timeOut = 10*(int) (Math.pow(10,9));
+        
 
         try {
+        	
+        	
             ServerSocket tmpsocket = new ServerSocket(port);
             while (true) {
 
                 System.out.println("Waiting");
-
-
+                Vector clients = new Vector();
+                
                 Socket socket = tmpsocket.accept();
                 System.out.println("Connected!");
 

@@ -27,11 +27,17 @@ public class TCPClient {
         	
         	new Thread(){
         		public void reloadClients() throws UnknownHostException, IOException{
-        			Socket socket = new Socket(address, port);
+        			Socket srvrSocket = new Socket(address, port);
         			
         			while(true){
-            			DataInputStream input = new DataInputStream(socket.getInputStream());
+            			DataInputStream input = new DataInputStream(srvrSocket.getInputStream());
             			
+            			String msg = input.readUTF();
+            			
+            			int j = 0;
+            			while(j < maxNoOfUsers && !msg.substring(j,j).equals("0")){
+            				clientsAddr[j] = msg.substring(j,j);
+            			}
             			
         			}
         			

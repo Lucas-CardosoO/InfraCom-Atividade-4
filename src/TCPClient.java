@@ -18,56 +18,69 @@ public class TCPClient {
         String address = "localhost";
         
         String [] clientsAddr = new String[maxNoOfUsers];
+        boolean [] clientsConnect = new boolean[maxNoOfUsers];
+        Socket [] clientsSocket = new Socket[maxNoOfUsers];
         
         for(int i = 0 ; i < maxNoOfUsers; i++){
         	clientsAddr[i] = "0";
+        	clientsConnect[i] = false;
         }
         
         try {
-        	
-        	new Thread(){
-        		public void reloadClients() throws UnknownHostException, IOException{
-        			Socket srvrSocket = new Socket(address, port);
-        			
-        			while(true){
-            			DataInputStream input = new DataInputStream(srvrSocket.getInputStream());
-            			
-            			String msg = input.readUTF();
-            			
-            			int j = 0;
-            			while(j < maxNoOfUsers && !msg.substring(j,j).equals("0")){
-            				clientsAddr[j] = msg.substring(j,j);
+    		while(true){
+    			Socket srvrSocket = new Socket(address, port);
+    				
+				new Thread(){
+					public void srvrConnect() throws IOException{
+						
+						int i = 0;
+		    			while(true && i < maxNoOfUsers){
+	    					
+	    					DataInputStream srvrInput = new DataInputStream(srvrSocket.getInputStream());
+	            			
+	            			String addr = srvrInput.readUTF();            			
+	            			
+	            			Socket socket = new Socket(addr, port);
+	            			
+	            			clientsSocket[i] = socket;
+	            			clientsConnect[i] = true;
+	            			
+	            			new Thread(){
+	                    		public void rcvMsg() throws IOException{
+	                    			while(true){
+	                        			DataInputStream input = new DataInputStream(socket.getInputStream());
+	                        			
+	                        			String msgRcv = input.readUTF();
+	                        			
+	                        			System.out.println(msgRcv);
+	                    			}
+	                    		}
+	                    	};
+	            			
+	            			i++;
+		    			}
+					}
+				};
+    			
+    			
+    			new Thread(){
+            		public void sendMsg() throws IOException{
+            			while(in.hasNext()) {
+                            String msgSend = in.nextLine();
+                            
+	            			for (int i = 0; i < maxNoOfUsers && clientsConnect[i]; i++){
+		                        DataOutputStream output = new DataOutputStream(clientsSocket[i].getOutputStream());
+
+		                        output.writeUTF(msgSend);
+		                        
+		                        
+	            			}
             			}
-            			
-        			}
-        			
-        		}
-        	}.start();
-        	
-        	new Thread(){
-        		public void sendMsg(){
-        			
-        		}
-        	}.start();
-        	
-        	new Thread(){
-        		public void receiveMsg(){
-        			
-        		}
-        	}.start();
-        	
-            Socket socket = new Socket(address, port);
-            DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-            
-            DataInputStream input = new DataInputStream(socket.getInputStream());
-            
+            		}
+            	}.start();
 
-            
-            while(in.hasNext()) {
-                String msg = in.nextLine();
-
-                output.writeUTF(msg);
-            }
+				
+			}
 
         } catch (Exception e) {
             System.out.println("deu ruim");

@@ -1,46 +1,54 @@
-        import java.net.ServerSocket;
-        import java.net.Socket;
-        import java.io.DataInputStream;
-        import java.util.Vector;
-        import java.lang.Thread;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.lang.Thread;
         
 public class TCPServer {
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
         int port = 2002;
-        int timeOut = 10*(int) (Math.pow(10,9));
+        int maxNoOfUsers = 1000;
+        
+        String [] clientsAddr = new String[maxNoOfUsers];
+        Socket [] clientsSocket = new Socket[maxNoOfUsers];
+        
+        for(int i = 0 ; i < maxNoOfUsers; i++){
+        	clientsAddr[i] = "0";
+        }
         
 
-        try {
-        	
-        	
-            ServerSocket tmpsocket = new ServerSocket(port);
+        try { 
+            
+            int i = 0;
             while (true) {
+                ServerSocket tmpsocket = new ServerSocket(port);
 
                 System.out.println("Waiting");
-                Vector clients = new Vector();
                 
                 Socket socket = tmpsocket.accept();
                 System.out.println("Connected!");
 
-                long timeBegin = System.nanoTime();
-                long timeNow = timeBegin;
-                DataInputStream input = new DataInputStream(socket.getInputStream());
-                while (true) {
-                    timeNow = System.nanoTime();
-                    String msg = input.readUTF();
-                    if(timeNow < (timeBegin + timeOut)) {
-                        System.out.println(msg);
-                    } else {
-                        break;
-                    }
-
+                String name = socket.getInetAddress().getHostAddress();
+                
+                clientsAddr[i] = name;
+                clientsSocket[i] = socket;
+                
+                System.out.println(name);
+                
+                for(int j = 0; j < i; j++){
+                	DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+                	output.writeUTF(clientsAddr[j]);
                 }
+                
+                for(int j = 0; j < i; j++){
+                	DataOutputStream output = new DataOutputStream(clientsSocket[j].getOutputStream());
+                	output.writeUTF(clientsAddr[i]);
+                }
+                
 
-                System.out.println("Connecton closed");
-
-                socket.close();
+                i++;
             }
         } catch(Exception e) {
 

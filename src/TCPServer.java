@@ -41,12 +41,11 @@ public class TCPServer {
                 	DataOutputStream output = new DataOutputStream(socket.getOutputStream());
                 	output.writeUTF(clientsAddr[j]);
                 }
-                
-                for(int j = 0; j < i; j++){
+                                
+                /*for(int j = 0; j < i; j++){
                 	DataOutputStream output = new DataOutputStream(clientsSocket[j].getOutputStream());
                 	output.writeUTF(clientsAddr[i]);
-                }
-                
+                }*/
 
                 i++;
             }
